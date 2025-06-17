@@ -1,0 +1,43 @@
+model menus {
+  id           Int          @id @default(autoincrement())
+  plate        String       @default("NOTNULL") @db.VarChar(255)
+  description  String
+  price        Decimal      @default(0) @db.Decimal(8, 2)
+  is_available Boolean      @default(true)
+  created_at   DateTime     @default(now()) @db.Timestamp(6)
+  image        String?
+
+  // Relations
+  quantities   quantities[] // Un menu peut apparaître dans plusieurs quantités
+}
+
+model orders {
+  id         Int          @id @default(autoincrement())
+  user_id    Int
+  created_at DateTime     @default(now()) @db.Timestamp(6)
+  status     String?      @default("pending") @db.VarChar(20)
+
+  // Relations
+  user       users        @relation(fields: [user_id], references: [id])
+  quantities quantities[] // Une commande peut contenir plusieurs quantités
+}
+
+model users {
+  id         Int      @id @default(autoincrement())
+  firstname  String   @db.VarChar(255)
+  created_at DateTime @default(now()) @db.Timestamp(6)
+
+  // Relations
+  orders     orders[] // Un utilisateur peut avoir plusieurs commandes
+}
+
+model quantities {
+  id       Int   @id @default(autoincrement())
+  order_id Int
+  menu_id  Int
+  quantity Int
+
+  // Relations
+  order    orders @relation(fields: [order_id], references: [id])
+  menu     menus  @relation(fields: [menu_id], references: [id])
+}

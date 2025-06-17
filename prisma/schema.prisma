@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model menus {
+  plate        String       @default("NOTNULL") @db.VarChar(255)
+  description  String
+  price        Decimal      @default(0) @db.Decimal(8, 2)
+  is_available Boolean      @default(true)
+  created_at   DateTime     @default(now()) @db.Timestamp(6)
+  image        String?
+  id           Int          @id @default(autoincrement())
+  quantities   quantities[]
+}
+
+model orders {
+  user_id    Int
+  created_at DateTime     @default(now()) @db.Timestamp(6)
+  status     String?      @default("pending") @db.VarChar(20)
+  id         Int          @id @default(autoincrement())
+  users      users        @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  quantities quantities[]
+}
+
+model users {
+  firstname  String   @db.VarChar(255)
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  id         Int      @id @default(autoincrement())
+  orders     orders[]
+}
+
+model quantities {
+  id       Int    @id @default(autoincrement())
+  order_id Int
+  menu_id  Int
+  quantity Int
+  menus    menus  @relation(fields: [menu_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  orders   orders @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
